@@ -1,0 +1,282 @@
+<!DOCTYPE HTML>
+<!--
+	Solid State by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>YouTube - Jared Teller</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Page Wrapper -->
+			<div id="page-wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<h1><a href="index.html">Home</a></h1>
+						<nav>
+							<a href="#menu">Menu</a>
+						</nav>
+					</header>
+
+				<!-- Menu -->
+					<nav id="menu">
+						<div class="inner">
+							<h2>Menu</h2>
+							<ul class="links">
+								<li><a href="index.html">Home</a></li>
+								<li><a href="projects.html">Projects</a></li>
+								<li><a href="elements.html">Elements</a></li>
+
+							</ul>
+							<a href="#" class="close">Close</a>
+						</div>
+					</nav>
+
+				<!-- Wrapper -->
+					<section id="wrapper">
+						<header>
+							<div class="inner">
+								<h2>Project - YouTube</h2>
+								<p>My personal YouTube channel!</p>
+								<a href="https://www.youtube.com/channel/UCckTB2YocVwWV0jmc929wCw">https://www.youtube.com/channel/UCckTB2YocVwWV0jmc929wCw</a>
+							</div>
+						</header>
+
+						<!-- Content -->
+							<div class="wrapper">
+								<div class="inner">
+									<section>
+										<h3 class="major">Background</h3>
+										<p>On my channel I post scripting tutorials for AutoHotkey. Specifically, these scripts are for the game Dota 2. I have just over 600 subscribers and over 115,000 views! These scripts are fairly simple for a programmer, but are a good entry point for someone who has never written code!</p>
+										<h4>My Channel</h4>
+										<div class="box alt">
+											<div class="row gtr-uniform">
+												<div class="col-12"><span class="image fit"><img src="images/youtube2.png" alt="snackproj.png" /></span></div>
+											</div>
+										</div>
+									</section>
+									<section>
+										<h4>Sample Script</h4>
+										<p>The following code shows how to create functional macros and a simple GUI in AutoHotkey.</p>
+										<pre><code>#UseHook
+#InstallKeybdHook
+#SingleInstance, force
+#Persistent
+
+;everything I do in here is assuming that the hotkeys for invoker are q for quas, e for wex, r for exort, f for ult, t and g are the spell buttons to cast
+;I recommend using quick casting in dota 2 for these to work faster
+;7/5/17 UPDATE
+;Added labels to all spells so they can be called with gosub to make easy combos
+
+;LIKE COMMENT OR SUB <3 
+
+
+;create a GUI
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Gui, New
+
+Gui, Font, cWhite
+Gui, Add, Text, x10, Cold Snap: 1 
+Gui, Add, Text, x10, Tornado: 3 
+Gui, Add, Text, x10, Meteor: 4
+Gui, Add, Text, x10, Deafening Blast: 5 
+Gui, Add, Text, x10, Alacrity: MouseButton1
+Gui, Add, Text, x10, Sunstrike: MouseButton2 
+Gui, Add, Text, x10, Forged Spirits: 2 
+Gui, Add, Text, x10, EMP: f2 
+Gui, Add, Text, x10, Ice Wall: f3 
+Gui, Add, Text, x10, Ghost Walk: f1
+
+
+Gui, +AlwaysOnTop
+Gui, Color, Black
+Gui, Show, w400 h300, Spell List 
+return
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;I FOUND OUT HOW TO BLOCK THE CAPS LOCK BUG FROM HAPPENING!
+~CapsLock::
+SetCapsLockState, Off
+return
+
+
+;creating an exit button
+^0::ExitApp ;control + 0 exits the program instantly (not pause) 
+
+
+~4::
+coldsnap:
+SendInput, qqq
+Sleep, 50
+SendInput, f
+return
+
+
+~f1::
+instantInvis:
+SendInput, qqe
+Sleep, 50
+SendInput, f
+Sleep, 50
+SendInput, eee
+Sleep, 300
+SendInput, t
+return
+
+
+~f3::
+iceWall:
+SendInput, qqr
+Sleep, 50
+SendInput, f
+return
+
+~f2::
+EMP:
+SendInput, eee
+Sleep, 50
+SendInput, f
+return
+
+~1::
+tornado: 
+SendInput, eeq
+Sleep, 50
+SendInput, f
+return
+
+
+~Xbutton1::
+alacrity:
+SendInput, eer
+Sleep, 50
+SendInput, f
+Sleep, 200
+SendInput, !t
+return
+
+
+~3::
+sonicWave:
+SendInput, qer
+Sleep, 50
+SendInput, f
+return
+
+
+~m::
+sunstrike:
+SendInput, rrr
+Sleep, 50
+SendInput, f
+return
+
+
+~5::
+forgedSpirits:
+SendInput, rrq
+Sleep, 50
+SendInput, f
+return
+
+
+~2::
+meatball:
+SendInput, rre
+Sleep, 50
+SendInput, f
+return
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Please note that I have commented all of these out so 
+;we will have to remove the ; from each line!
+
+;COMBOS
+;im using m because i can rebind a mouse key to m 
+~Xbutton2::
+eulsSunstrike:
+SendInput, b
+Sleep, 50
+GoSub, sunstrike
+Sleep, 1000
+SendInput, t
+Sleep, 400
+SendInput, g
+Sleep, 200
+GoSub, sonicWave
+Sleep, 1000 
+SendInput, t
+return
+
+;same with p
+;~p::
+;fullCombo:
+;set up emp then tornado
+;click 8, then 2 to set up the spells
+;SendInput, t
+;Sleep, 400
+;SendInput, g
+;Sleep, 2200
+;GoSub, meatball
+;Sleep, 150
+;SendInput, t
+;Sleep, 1900
+;GoSub, sonicWave
+;Sleep, 150
+;SendInput, t
+;invoke meteor, then deafening blast
+;return
+
+
+
+;DO NOT USE P AS PAUSE IF YOU ARE USING THE ABOVE CODE THAT IS COMMENTED OUT!
+~p::
+Suspend
+return
+//View more on Github
+https://github.com/jaredt17/Dota2Scripting
+									</code></pre>
+									</section>
+
+								</div>
+							</div>
+
+					</section>
+
+				<!-- Footer -->
+				<section id="footer">
+					<div class="inner">
+						<h2 class="major">Get in touch</h2>
+						<p>Feel free to send me an email or check out my profiles below!</p>
+						
+						<ul class="contact">
+							<li class="icon solid fa-envelope"><a href="mailto:17jaredt17@gmail.com">17jaredt17@gmail.com</a></li>
+							<li class="icon brands fa-linkedin"><a href="https://www.linkedin.com/in/jared-teller/">https://www.linkedin.com/in/jared-teller/</a></li>
+							<li class="icon brands fa-github"><a href="https://github.com/jaredt17">https://github.com/jaredt17</a></li>
+							<li class="icon brands fa-youtube"><a href="https://www.youtube.com/channel/UCckTB2YocVwWV0jmc929wCw">https://www.youtube.com/channel/UCckTB2YocVwWV0jmc929wCw</a></li>
+						</ul>
+						<ul class="copyright">
+							<li>&copy; Jared Teller All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+						</ul>
+					</div>
+				</section>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
