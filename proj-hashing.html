@@ -32,8 +32,7 @@
 							<ul class="links">
 								<li><a href="index.html">Home</a></li>
 								<li><a href="projects.html">Projects</a></li>
-								<li><a href="elements.html">Elements</a></li>
-
+								<li><a href=#footer>Contact</a></li>
 							</ul>
 							<a href="#" class="close">Close</a>
 						</div>
@@ -45,7 +44,7 @@
 							<div class="inner">
 								<h2>Project - Hashing Based Search Engine</h2>
 								<p>A custom hashing based search engine built in Java</p>
-								<a href="https://snackfinder.herokuapp.com/">https://snackfinder.herokuapp.com/</a>
+								<a href="https://github.com/jaredt17/HashingBasedSearchEngine">https://github.com/jaredt17/HashingBasedSearchEngine</a>
 							</div>
 						</header>
 
@@ -54,7 +53,10 @@
 								<div class="inner">
 									<section>
 										<h3 class="major">Background</h3>
-										<p>This project utilizes separate chaining and stacks to allow a user to enter input expressions in Postfix notation to search the document for a corresponding URL. The document is a text file that is structured as follows:</p>
+										<p>This project utilizes <strong>separate chaining</strong> and <strong>stacks</strong> to allow a user to enter input expressions in <strong>Postfix notation</strong> to search the document for a corresponding URL.
+											 This project was created in the Jetbrains IntelliJ IDE on JDK 1.8. 
+											 <strong>Javadoc</strong> was used to auto-generate documentation the project.
+											 The document is a text file that is structured as follows:</p>
 										<ol>
 											Lines:
 											<li>URL</li>
@@ -72,45 +74,387 @@
 											<li>Handle input operations like ?, &&, and ||</li>
 											<li>Track the time taken for a given hashing technique and any searches performed</li>
 										</ul>
-										<h4>Landing Page</h4>
-										<div class="box alt">
-											<div class="row gtr-uniform">
-												<div class="col-12"><span class="image fit"><img src="images/snackproj.png" alt="snackproj.png" /></span></div>
-											</div>
-										</div>
 									</section>
 									<section>
+										<h3 class="major">Design</h3>
+										<p>We will take a deeper look at some of the classes used in the project:</p>
+										<ul>
+											<li>Map - The hashing implementation</li>
+											<li>MyBestHashMap - Collision handling</li>
+											<li>GenerateExpression - Uses Stacks, LinkedLists, and Nodes to generate expressions used for searching</li>
+										</ul>
+									</section>
+									<section>
+										<h3 class="major">Classes</h3>
+										<h4>Map</h4>
+										<p>The underlying idea behind this dynamic Map class is to be the major backbone of the MyBestHashMap class. 
+											This class uses an interface called MapInf which provides the core functionality to the HashMap. 
+											The functions of this class are the basic functions of a HashMap and I do not handle collisions in this scope: 
+											All of this is offloaded to the MyBestHashMap class. 
+											What is managed here is the mapping of indexes, rehashing of the dynamic Map, indexing of objects in the Map, and basic error handling. 
+											Dynamic rehashing of our Map ensures that collisions are kept at a minimum as I always keep a ratio of 30% of the bucket remaining unfilled. 
+											This creates room for indices for upcoming keys. </p>
 										<h4>Sample Code</h4>
-										<p>The following code demonstrates how to set up the tables used by Django for an individual "snack" in the project.</p>
-										<pre><code>from django.db import models
-from django.conf import settings
+										<pre><code>package main;
 
+/**
+ * Basic map
+ * */
+public class Map<T> extends MapInf<T> {
 
-class Store(models.Model):
-    name = models.CharField(max_length=255)
-    city = models.CharField(max_length=255)
+    private MapNode<T>[] bucket;
+    private int REAL_SIZE = 0;
 
-    def __str__(self):
-        return f'%s' % self.name
+    /**
+     * creates a new map object with a start size
+     * @param startSize
+     */
+    Map(int startSize) {
+        bucket = new MapNode[startSize];
+    }
 
+    /**
+     * adds a new value to the bucket
+     * and calls back for an error
+     * -1 key is null
+     * -2 key is a collision
+     * @param ele element value to insert
+     * @param key key for the element
+     * @return
+     */
+    public int put(T ele, String key) {
+        if(key == null) {
+            System.out.println("Error: Key Can't Be NULL");
+            return -1;
+        }
 
-class Snack(models.Model):
-    store = models.ForeignKey(Store, on_delete=models.CASCADE)
-    name = models.CharField(max_length=255)
-    price = models.DecimalField(default=1.00, decimal_places=2, max_digits=6)
-    date_found = models.DateTimeField(auto_now_add=True, blank=True)
-    sale = models.BooleanField(default=False)
-    snack_author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+        int index = getHashIndex(key);
 
-    def __str__(self):
-        return f'%s' % self.name
+        //check for collision
+        if(bucket[index] != null) {
+            HashMapStats.NUM_COLLISIONS++;
+            return -2;
+        }
 
-    def pretty_price_string(self):
-        fancy_price = f'$%.2f' % self.price
-        return fancy_price
-//View more on Github
-https://github.com/jaredt17/foodFinder/
+        bucket[index] = new MapNode<>(ele, key);
+        REAL_SIZE++;
+
+        if (REAL_SIZE / bucket.length > .7)
+            rehash();
+
+        HashMapStats.NUM_INSERTIONS++;
+        return index;
+    }
+
+    public int forcePut(T ele,String key){
+        int index = getHashIndex(key);
+        bucket[index] = new MapNode<>(ele, key);
+        return index;
+    }
+
+    /**
+     * Gets the map node value at a given key
+     * if the key does'nt exist the error number is set
+     * @param key
+     * @return node value
+     */
+    public T get(String key) {
+        MapNode<T> mNode = bucket[getHashIndex(key)];
+        if(mNode == null) {
+            errno.setWARN(5);
+            errno.setERRNO(5);
+            return null;
+        }
+        return mNode.v;
+    }
+
+    /**
+     * Get a map node at a given key
+     * @param key
+     * @return
+     */
+    MapNode<T> getMapNode(String key){
+        return bucket[getHashIndex(key)];
+    }
+
+    /**
+     * Calculates the hash code then the index in the bucket for a given key.
+     * @param ele key
+     * @return
+     */
+    private int getHashIndex(String ele) {
+        int sum = 0;
+        for (char i : ele.toCharArray()) {
+            sum += (int) i;
+        }
+        return sum % bucket.length;
+    }
+
+    /**
+     * Rehashes all the values in the bucket for a new bucket size
+     */
+    private void rehash() {
+        System.out.println("brb busy...Re-Hashing");
+        REAL_SIZE = 0;
+        MapNode<T>[] temp = bucket;
+        bucket = new MapNode[bucket.length*2];
+        for (int i = 0; i < temp.length; i++) {
+            if (temp[i] != null) {
+                MapNode<T> node = temp[i];
+                put(node.v, node.k);
+            }
+        }
+    }
+
+    /**
+     * returns all the non null keys in the map
+     * @return array of keys
+     */
+    String[] getKeys() {
+        String[] keys = new String[REAL_SIZE];
+        int x = 0;
+        for (MapNode<T> tMapNode : bucket) {
+            if (tMapNode != null) {
+                keys[x] = tMapNode.k;
+                x++;
+            }
+        }
+        return keys;
+    }
+}
 									</code></pre>
+									<h4>MyBestHashMap</h4>
+									<p>The basis of the HashMap comes from the idea of storing the descriptions for each URL in clusters of links. 
+										This was done by storing the descriptions as the keys of the HashMap (math performed in map class). 
+										This kept the space taken by the HashMap low by not initializing objects inside of the HashNodes until there was an actual collision. 
+										Since stored URLs are in clusters, I ran into a problem where multiple keys were being traced to the same index. 
+										I overcame this by finding a way to deal with keys by differentiating the valid key I was looking for from other keys. 
+										This process took some time and has become the underlying reason why the HashMap is so efficient. </p>
+										<h4>Sample Code</h4>
+										<pre><code>package main;
+
+import java.util.ArrayList;
+
+/**
+ * This class extents from the map class
+ * @param <T> type
+ */
+
+public class MyBestHashMap<T> extends MapInf<T> {
+
+    private Map<HashNode<T>> dhm;
+
+    /**
+     * creates a new map with an init size
+     */
+    MyBestHashMap() {
+        dhm = new Map<>(1000);
+    }
+
+    /**
+     * add a new value into hashmap and checks for collisions
+     * @param ele
+     * @param key
+     * @return
+     */
+    public int put(T ele, String key) {
+        HashMapStats.startRecording();
+        HashNode<T> node = new HashNode<>(ele);
+        int callback = dhm.put(node, key);
+        if (callback == -2) dhm.get(key).handleCollision(node, key);
+        HashMapStats.stopRecording(0);
+        return callback;
+    }
+
+    /**
+     * gets all the links from a given node
+     * @param key key for node
+     * @return list of nodes
+     */
+    ArrayList<T> getAllLinks(String key) {
+        HashMapStats.startRecording();
+        if (errno.getERRNO() == 5) {
+            return new ArrayList<>();
+        }
+        HashNode<T> hNode = dhm.get(key);
+        MapNode<HashNode<T>> mapNode = dhm.getMapNode(key);
+        if (errno.getERRNO() != 5 && hNode.collisions != null) {
+            HashMapStats.stopRecording(1);
+            return hNode.getAllLinksForCorrectKey(mapNode.k, key);
+        }
+        ArrayList<T> nodeValue = new ArrayList<>();
+        if (errno.getERRNO() != 5) {
+            nodeValue.add(hNode.value);
+        }
+        HashMapStats.stopRecording(-2);
+        return nodeValue;
+    }
+
+    /**
+     * gets a single now for a given key
+     * @param key key
+     * @return the node value
+     */
+    public T get(String key) {
+        HashMapStats.startRecording();
+        HashNode<T> hNode = dhm.get(key);
+        MapNode<HashNode<T>> mapNode = dhm.getMapNode(key);
+        if (mapNode == null)
+            return null;
+        if ((errno.getERRNO() != 5) && !mapNode.k.equals(key) && (hNode.collisions != null)) {
+            return hNode.getLinkForCorrectKey(key);
+        }
+        HashMapStats.stopRecording(1);
+        return dhm.get(key).value;
+    }
+
+    /**
+     * get the node object for a key
+     * @param key key
+     * @return node object
+     */
+
+    private HashNode<T> getNode(String key) {
+        return dhm.get(key);
+    }
+
+    /**
+     * prints the hashmap and collisions
+     */
+    public void printHashMap() {
+        System.out.println("---Printing Map---");
+        String[] keys = dhm.getKeys();
+        for (String key : keys) {
+            HashNode<T> node = getNode(key);
+            System.out.printf("KEY: %s | ", key);
+            System.out.println(node.toString());
+            if (node.collisions != null) {
+                System.out.printf("--------Collisions for key: %s--------\n", key);
+                node.printAllCollisions();
+                System.out.printf("--------------------------------------\n");
+            }
+        }
+    }
+}
+									</code></pre>
+									<h4>GenerateExpression</h4>
+									<p>The objective for this class was to take in the postfix operations from the ops.txt file and turn them into smaller substrings of working postfix expressions. 
+										This was accomplished by using a Stack, LinkedList, and Node class to effectively iterate through the expression. 
+										Building our expression like this allowed me to check for valid expressions, thus giving the program more stability. 
+										I would trigger the following when ?, &&, !, and || were given: 
+										<ul>
+											<li>For && and || - build an expression based on the two operands that were already in the stack, and push this expression back onto the top of the stack.</li>
+											<li>For ? – peek at the top of the stack and start the process of running the query from the Main class, by calling a static method called runExpression.</li>
+											<li>For ! – cease to continue running the program.</li>
+										</ul>
+									</p>
+									<h4>Sample Code</h4>
+									<pre><code>package main;
+
+import java.util.Scanner;
+
+/**
+ * This call generates and runs the expressions as they come in
+ */
+class GenerateExpression {
+	private Stack<String> myStack;
+    private boolean expressionGenerated = false;
+    private boolean shouldCont = true;
+
+    /**
+     * Loads in the provided input and determines how to run the program
+     * 1: ops.txt
+     * 2: scanner input
+     * @param data
+     */
+	GenerateExpression(InOut data){
+        myStack = new Stack<>();
+        String ops = data.getOps();
+        String[] splitOps = ops.split("\\s+");
+
+	    Scanner s = new Scanner(System.in);
+	    System.out.println("Options{\n\t[1]: How do want to run the program? from a file \"ops.txt\"\n\t[2]: Using the scanner\n}");
+	    System.out.print("Please enter a integer: ");
+	    int options = s.nextInt();
+
+        if(options == 1) {
+            //Input file was selected so just run all of the operations
+            processExpressionStack(splitOps);
+        }else{
+            System.out.println("Now Enter Your Expression");
+            while (shouldCont == true){
+                //Enter another expression prompt
+                System.out.print("> ");
+                String expression = s.next();
+                processExpressionStack(new String[]{expression});
+            }
+        }
+
+		if(!expressionGenerated)
+			errno.pError(0);
+	}
+
+    /**
+     * UNIT test which allows input to be inserted inline or from a input file
+     *
+     * @param operations A string buffer that is the operation is going to be inserted or excuted in order;
+     */
+	private void processExpressionStack(String[] operations) {
+        label:
+        for (String operation : operations) {
+            if (!operation.isEmpty()) {
+
+                switch (operation) {
+                    case "!":
+                        shouldCont = false;
+                        break label;
+                    case "?":
+                        expressionGenerated = true;
+                        //Print the URLS corresponding to the expression at the top of the query stack
+                        if (myStack.size() != 0) {
+                            String peeked = myStack.peek();
+                            WMUsearchEngine.runExpression(peeked);
+                        }
+                        break;
+                    case "&&":
+                    case "||":
+                        //pop the two previous values in the stack and evaluate the expression
+                        StringBuilder builder = new StringBuilder();
+                        if (myStack.size() < 2)
+                            errno.pError(2);
+
+                        String str2 = myStack.pop();
+                        String str1 = myStack.pop();
+                        builder.append(str1);
+                        builder.append(" ");
+                        builder.append(str2);
+                        builder.append(" ");
+                        builder.append(operation);
+                        myStack.push(builder.toString());
+                        break;
+                    default:
+                        myStack.push(operation);
+                        break;
+                }
+            }
+        }
+	}
+}
+									</code></pre>
+									<h3 class="major">Sample Output</h3>
+									<p>Index Created</br>
+											171</br>
+											Expression: metal licence &&</br>
+											-----------------</br>
+											Results</br>
+											http://www.broxtowe.gov.uk/index.aspx?articleid=1651</br>
+											http://www.wealden.gov.uk/Wealden/Housing/Council_Housing/Repairs_and_Maintenance/Housing_Repairs_And_Maintenance.aspx</br>
+											https://www.ambervalley.gov.uk/environment/pest-control/</br>
+											http://www.brentwood.gov.uk/index.php?cid=544</br>
+											http://www.stockport.gov.uk/licensing</br>
+											http://www.threerivers.gov.uk/Default.aspx/Web/Licensing1</br>
+											http://adoptioncounts.org.uk/</br>
+											Some results were excluded to save space!
 									</section>
 
 								</div>
