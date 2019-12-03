@@ -1,0 +1,313 @@
+<!DOCTYPE HTML>
+<!--
+	Solid State by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Shell - Jared Teller</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+		
+		<!--TESTING HIGHLIGHT JS USING ATOM THEME-->
+        <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.16.2/build/styles/atom-one-dark.min.css">
+        <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.16.2/build/highlight.min.js"></script>
+        <!--END TEST-->
+	</head>
+	<body class="is-preload">
+
+		<!-- Page Wrapper -->
+			<div id="page-wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<h1><a href="index.html">Home</a></h1>
+						<nav>
+							<a href="#menu">Menu</a>
+						</nav>
+					</header>
+
+				<!-- Menu -->
+					<nav id="menu">
+						<div class="inner">
+							<h2>Menu</h2>
+							<ul class="links">
+								<li><a href="index.html">Home</a></li>
+								<li><a href="projects.html">Projects</a></li>
+								<li><a href=#footer>Contact</a></li>
+							</ul>
+							<a href="#" class="close">Close</a>
+						</div>
+					</nav>
+
+				<!-- Wrapper -->
+					<section id="wrapper">
+						<header>
+							<div class="inner">
+								<h2>Project - Shell</h2>
+								<p>A custom shell written in C for Linux</p>
+								<a href="https://github.com/jaredt17/CustomShell_C">View Code on Github</a>
+							</div>
+						</header>
+
+						<!-- Content -->
+							<div class="wrapper">
+								<div class="inner">
+									<section>
+										<h3 class="major">Background</h3>
+										<p>This project is an attempt to create a custom <strong>Shell</strong> program from scratch that can utilize all of the <strong>Linux</strong> built in commands. The Shell is to function by running through a <strong>Finite State Machine</strong> for all of the tokenized user input passed through a <strong>lexical analyzer</strong>. <strong>Git</strong> was used for Version Control.</p>
+										
+									</section>
+									<section>
+										<h3 class="major">Specifications</h3>
+										<ul>
+											<li>Use a lexical analyzer created using Flex</li>
+											<li>Use a state machine to keep track of what is coming from getNext() (Lexical Analyzer function) and progress through program execution</li>
+											<li>Utilize two structs, one for simple commands, other for storing multiple simple commands to enable Piping in the Shell</li>
+											<li>Shell must be able to execute on command line arguments, input redirection, output redirection in either append mode or overwrite mode, stderror redirection, and Pipes</li>
+											<li>Valgrind should be used to avoid any possible memory leaks while running the shell</li>
+										</ul>
+										<h4>Coding Environment - VSCode in Windows Subsystem for Linux (Remote mode)</h4>
+										<div class="box alt">
+											<div class="row gtr-uniform">
+												<div class="col-12"><span class="image fit"><img src="images/shellFull.jpg" alt="" /></span></div>
+											</div>
+										</div>
+									</section>
+									<section>
+										<h3 class="major">Design</h3>
+										<p>We will take a deeper look at some of the major pieces of the project:</p>
+										<ul>
+											<li>State Machine - Program Flow and switch statements</li>
+											<li>Structs for Holding Commands - individual commands and piped commands</li>
+											<li>Execution - file redirection, dup2(), fork(), and pipe() system calls</li>
+										</ul>
+										<h4>State Machine</h4>
+										<p>The state machine was first designed by hand before being converted into C code. The tokens are what moves the program between states of actions.</p>
+										<div class="box alt">
+												<div class="row gtr-uniform">
+													<div class="col-12"><span class="image fit"><img src="images/states.jpg" alt="" /></span></div>
+												</div>
+											</div>
+
+											<h4>State Machine - Code</h4>
+											<p>Below is the table used to represent the aforementioned state machine. Each row represents a possible state in the program while each column represents the next state as described by each token.</p>
+											<pre><code>//THE TABLE BELOW IS FOR A FINITE STATE MACHINE AS DESCRIBED IN THE DRAWING
+	int table[11][10] = 
+	{ // NoToken", "GREAT", "NEWLINE", "WORD", "GREATGREAT", "PIPE", "LESS", "GREATAPERSAND", "GREATGREATAPERSAND", "AMPERSAND"
+	{  	ERROR   , ERROR  ,START  , PROGNAME, ERROR, ERROR, ERROR, ERROR,ERROR,ERROR }, // start
+	{  	ERROR, OUTPUT_REDIRECT_WRITE, END, CLA, OUTPUT_REDIRECT_APPEND, START, INPUT_REDIRECT, STDERR_OVERWRITE, STDERR_APPEND, BACKGROUND}, //PROGNAME
+	{	ERROR, OUTPUT_REDIRECT_WRITE, END, CLA, OUTPUT_REDIRECT_APPEND, START, INPUT_REDIRECT, STDERR_OVERWRITE, STDERR_APPEND, BACKGROUND}, //CLA(WORD)
+	{	ERROR, OUTPUT_REDIRECT_WRITE, END, ERROR, OUTPUT_REDIRECT_APPEND, START, INPUT_REDIRECT, STDERR_OVERWRITE, STDERR_APPEND, BACKGROUND}, //FILENAME
+	{	ERROR, ERROR, ERROR, FILENAME,ERROR, ERROR, ERROR, ERROR, ERROR, ERROR}, //INPUT_REDIRECT
+	{	ERROR, ERROR, ERROR, FILENAME,ERROR, ERROR, ERROR, ERROR, ERROR, ERROR}, //OUTPUT_REDIRECT_APPEND 
+	{	ERROR, ERROR, ERROR, FILENAME,ERROR, ERROR, ERROR, ERROR, ERROR, ERROR},//OUTPUT_REDIRECT_WRITE
+	{	ERROR, ERROR, END, ERROR,ERROR, ERROR, ERROR, ERROR, ERROR, ERROR},//BACKGROUND		
+	{	ERROR, ERROR, ERROR, FILENAME,ERROR, ERROR, ERROR, ERROR, ERROR, ERROR},//STDERR_OVERWRITE
+	{	ERROR, ERROR, ERROR, FILENAME,ERROR, ERROR, ERROR, ERROR, ERROR, ERROR},//STDERR_APPEND
+	{  	ERROR   , ERROR  ,PROGNAME  , PROGNAME, ERROR, ERROR, ERROR, ERROR,ERROR,ERROR }}; //ERROR
+										</code></pre>
+										<h4>Actions in each state - Switch Statement</h4>
+										<pre><code>
+while(curstate != END) {
+	getNext(&token, text, TEXTSIZE, &textlength);
+	curstate = table[curstate][token-NOTOKEN];
+	switch (curstate){ //we will have specific actions for each state defined in the table
+		case START:
+			if(token == NEWLINE){
+				printf("%%");
+			}
+			if(prevstate != ERROR){
+				//print(_currentSimpleCommand);
+				insertSimpleCommand(curSimpleCommand, _currentCommand);
+				curSimpleCommand = initSimpleCommand();
+			}
+		break;
+		case PROGNAME:
+			if(strcmp(text, "quit") == 0 || strcmp(text, "exit") == 0){
+				exit(0);
+			}
+			insertArgument(curSimpleCommand,text);
+		break;
+		case CLA:
+			insertArgument(curSimpleCommand,text);
+		break;
+</code></pre>
+										<h4>Structs to hold commands</h4>
+<pre><code>// Command Data Structure
+// Describes a simple command and arguments
+typedef struct SimpleCommand {
+	// Available space for arguments currently preallocated
+	int _numberOfAvailableArguments;
+	// Number of arguments
+	int _numberOfArguments;
+	// Array of arguments
+	char **_arguments;
+}SimpleCommand;
+
+// Describes a complete command with the multiple pipes if any
+// and input/output redirection if any.
+typedef struct Command {
+        int _numberOfAvailableSimpleCommands;
+        int _numberOfSimpleCommands;
+        SimpleCommand ** _simpleCommands;
+        char * _outFile;
+        char * _inputFile;
+        char * _errFile;
+        int _background;
+	int outputAppend;
+	int stdErrAppend;
+}Command;
+</code></pre>
+
+									<h4>Program Execution - Pipes and Redirection</h4>
+<pre><code>
+void execute(Command * command){
+	//save in/out
+	int tmpin = dup(0);
+	int tmpout = dup(1);
+	int tmperr = dup(2);
+
+	//set the initial input
+	int fdin;
+
+	//set up initial error
+	int fderr;
+	if(command->_errFile != NULL){
+		if(command->stdErrAppend == 1){
+			fderr = open(command->_errFile, O_RDWR | O_APPEND);
+		}else{
+			fderr = open(command->_errFile, O_RDWR | O_CREAT | O_TRUNC, 0666);
+		}
+	}
+	else{//use default error
+		fderr = dup(tmperr);
+	} //err file now set up for either append or create mode
+
+	if (command->_inputFile != NULL){
+		fdin = open(command->_inputFile, O_RDWR);
+	}
+	else{// Use default input
+		fdin = dup(tmpin);
+	}
+
+	pid_t ret;
+	int fdout;
+	for (int i = 0; i < command->_numberOfSimpleCommands; i++){
+		//redirect input
+		dup2(fdin, 0);
+		close(fdin);
+
+		//redirect to err file
+		dup2(fderr, 2);
+		close(fderr);
+
+		//setup output
+		if (i == command->_numberOfSimpleCommands - 1){
+
+			// Last simple command
+			if (command->_outFile){
+				if(command->outputAppend == 1){
+					fdout = open(command->_outFile,  O_RDWR | O_APPEND | O_CREAT, 0666);
+					//printf("\nOUTFILE NAME APPEND: %s\n", command->_outFile);
+				}else{ //overwrite mode
+					fdout = open(command->_outFile,  O_RDWR | O_CREAT | O_TRUNC, 0666);
+					//printf("\nOUTFILE NAME: %s\n", command->_outFile);
+				}
+				
+				
+			}
+			else{
+				// Use default output
+				fdout = dup(tmpout);
+			}
+		}
+
+		else{
+			// Not last simple command, create pipe
+			int fdpipe[2];
+			pipe(fdpipe);
+			fdout = fdpipe[1];
+			fdin = fdpipe[0];
+			fderr = fdpipe[2];
+		} // if/else
+
+		// Redirect output
+		dup2(fdout, 1);
+		close(fdout);
+
+		// Create child process
+		ret = fork();
+		if (ret == 0){
+			execvp(command->_simpleCommands[i]->_arguments[0], command->_simpleCommands[i]->_arguments);
+			perror("Execvp:");
+			_exit(1);
+		}
+	} //  for
+
+	//restore in/out defaults
+	dup2(tmpin, 0);
+	dup2(tmpout, 1);
+	dup2(tmperr, 2);
+	close(tmperr);
+	close(tmpin);
+	close(tmpout);
+	if (!command->_background){
+		// Wait for last command
+		waitpid(ret, NULL, 0);
+	}
+} // execute
+</code></pre>
+									</section>
+									
+									<section>
+										<h3 class="major">Sample Run</h3>
+										<div class="box alt">
+												<div class="row gtr-uniform">
+													<div class="col-12"><span class="image fit"><img src="images/samplerun.jpg" alt="" /></span></div>
+												</div>
+											</div>
+									</section>
+									<section>
+											<h3 class="major">Summary and thoughts</h3>
+											<p>This program was made a lot simpler by utilizing a Finite Sate Machine, rather than defining actions based on many if-else statements in the code: This increased readability, and decreased the number of lines of code by a large margin. Using Valgrind to check for memory leaks allowed me to better understand memory management in C. Error checking in this program was much simpler than most of my projects since I could redirect to an Error State at any point during execution.</p>
+									</section>
+								</div>
+							</div>
+
+					</section>
+
+				<!-- Footer -->
+				<section id="footer">
+					<div class="inner">
+						<h2 class="major">Get in touch</h2>
+						<p>Feel free to send me an email or check out my profiles below!</p>
+						
+						<ul class="contact">
+							<li class="icon solid fa-envelope"><a href="mailto:17jaredt17@gmail.com">17jaredt17@gmail.com</a></li>
+							<li class="icon brands fa-linkedin"><a href="https://www.linkedin.com/in/jared-teller/">https://www.linkedin.com/in/jared-teller/</a></li>
+							<li class="icon brands fa-github"><a href="https://github.com/jaredt17">https://github.com/jaredt17</a></li>
+							<li class="icon brands fa-youtube"><a href="https://www.youtube.com/channel/UCckTB2YocVwWV0jmc929wCw">https://www.youtube.com/jaredt17</a></li>
+						</ul>
+						<ul class="copyright">
+							<li>&copy; Jared Teller All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+						</ul>
+					</div>
+				</section>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+			<script>hljs.initHighlightingOnLoad();</script>
+
+	</body>
+</html>
