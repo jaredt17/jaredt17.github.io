@@ -1,0 +1,155 @@
+<!DOCTYPE HTML>
+<!--
+	Solid State by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Portfolio - Jared Teller</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+
+		<!--TESTING HIGHLIGHT JS USING ATOM THEME-->
+        <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.16.2/build/styles/atom-one-dark.min.css">
+        <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.16.2/build/highlight.min.js"></script>
+        <!--END TEST-->
+	</head>
+	<body class="is-preload">
+
+		<!-- Page Wrapper -->
+			<div id="page-wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<h1><a href="index.html">Home</a></h1>
+						<nav>
+							<a href="#menu">Menu</a>
+						</nav>
+					</header>
+
+				<!-- Menu -->
+					<nav id="menu">
+						<div class="inner">
+							<h2>Menu</h2>
+							<ul class="links">
+								<li><a href="index.html">Home</a></li>
+								<li><a href="projects.html">Projects</a></li>
+								<li><a href=#footer>Contact</a></li>
+							</ul>
+							<a href="#" class="close">Close</a>
+						</div>
+					</nav>
+
+				<!-- Wrapper -->
+					<section id="wrapper">
+						<header>
+							<div class="inner">
+								<h2>Project - React Portfolio</h2>
+								<p>An online portfolio app created using React, Node, JavaScript, HTML, CSS, and React Bootstrap</p>
+								<a href="https://jimteller.com/">My Dad's Portfolio - Live Demo</a>
+							</div>
+						</header>
+
+						<!-- Content -->
+							<div class="wrapper">
+								<div class="inner">
+									<section>
+										<h3 class="major">Background</h3>
+										<p>My father, Jim Teller, wanted to have a personal IT portfolio online. I offered my help and decided to use <strong>React</strong>, which allowed me to rapidly develop a template application based on components that anyone could use to quickly launch an online portfolio. This open source React project is available on my GitHub and was used to create a new revision of my portfolio that I plan on publishing in the future, along with my Dad's online portfolio he is using currently. His portfolio was published to Github Pages.</p>
+										<h4>Landing Page</h4>
+										<div class="box alt">
+											<div class="row gtr-uniform">
+												<div class="col-12"><span class="image fit"><img src="images/portfolioLanding.jpg" alt="portlanding.jpg" /></span></div>
+											</div>
+										</div>
+									</section>
+									<section>
+										<h4>Sample Code</h4>
+										<p>The following code demonstrates how rapidly a React project component can be added to the projects page. Notice how this project page is actually a component itself and is imported on the landing page.</p>
+										<pre><code>import React, { Component } from 'react';
+import Preview from './components/ProjectPreview';
+import {
+    Container, Row, Col, Card, Button, CardImg, CardTitle, CardText, CardDeck,
+    CardSubtitle, CardBody
+} from 'reactstrap';
+import hashPicture from './images/hashmap.png';
+import shellPic from './images/shellthumbnail.jpg'
+import snackPic from './images/snackproj.png';
+import hisser from './images/hisserproj.png';
+import youtubeImage from './images/youtube.png';
+import portImage from './images/react.jpg';
+
+class Project extends Component {
+    render() {
+        return ( //the container is a bootstrap container for responsive layouts
+            &ltContainer fluid style={{backgroundColor: "rgb(46,49,65)"}}&gt
+                &ltbr&gt&lt/br&gt
+                &lth5 style={{color: 'white'}}&gtProjects&lt/h5&gt
+                &lthr&gt&lt/hr&gt
+                &ltRow&gt
+                    &ltCol md="4" sm="6"&gt    
+                        &ltPreview title='Custom Shell' text="A custom shell written in C that features Finite State Machine design, Make, lexical analysis (tokenization), file redirection, and Pipes. Built within Windows Subsystem for Linux and Visual Studio Code." imagePath={shellPic}  gitLink="https://github.com/jaredt17/CustomShell_C" link="/projects/customShell"/&gt
+                        &ltPreview title='Hisser Sharing' text="A twitter clone created using PHP, MySQLi, HTML, Bootstrap, and CSS. Features custom profiles, user feeds, posts, and searching." imagePath={ hisser } gitLink="https://github.com/jaredt17/HisserSharing" /&gt
+                    &lt/Col&gt
+
+                    &ltCol md="4" sm="6"&gt
+                        &ltPreview title='Snack Finder' text="A Python (Django) web application for finding local snacks. Features authentication, PostgreSQL, MVC design, and Bootstrap." imagePath={ snackPic } gitLink="https://github.com/jaredt17/foodFinder"/&gt
+                        &ltPreview title='Hashing Based Search Engine' text="A custom hashing based search engine built in Java utilizing separate chaining and stacks. Allows user to enter input expressions in Postfix notation to search the document for a corresponding URL." gitLink="https://github.com/jaredt17/HashingBasedSearchEngine" imagePath={hashPicture} /&gt
+                    &lt/Col&gt
+
+                    &ltCol md="4" sm="6"&gt
+                        &ltPreview title='This Portfolio Web App!' text="The portfolio you are looking at now was created using React, JavaScript, HTML, CSS, and React Bootstrap. Every project shown is based on a project preview component and the entire project page was added to the home page as a component itself." imagePath={portImage} gitLink="https://github.com/jaredt17/Portfolio" /&gt
+                        &ltPreview title='My YouTube Channel' text="My YouTube channel has about 650 Subscribers and over 125,000 views! I generally share my custom scripts for video games written in AutoHotkey scripting language." imagePath={ youtubeImage } link="https://www.youtube.com/channel/UCckTB2YocVwWV0jmc929wCw" /&gt
+                        
+                    &lt/Col&gt
+                &lt/Row&gt
+
+            &lt/Container&gt
+            
+        );
+    }
+}
+
+export default Project;
+									</code></pre>
+									</section>
+
+								</div>
+							</div>
+
+					</section>
+
+				<!-- Footer -->
+				<section id="footer">
+					<div class="inner">
+						<h2 class="major">Get in touch</h2>
+						<p>Feel free to send me an email or check out my profiles below!</p>
+						
+						<ul class="contact">
+							<li class="icon solid fa-envelope"><a href="mailto:17jaredt17@gmail.com">17jaredt17@gmail.com</a></li>
+							<li class="icon brands fa-linkedin"><a href="https://www.linkedin.com/in/jared-teller/">https://www.linkedin.com/in/jared-teller/</a></li>
+							<li class="icon brands fa-github"><a href="https://github.com/jaredt17">https://github.com/jaredt17</a></li>
+							<li class="icon brands fa-youtube"><a href="https://www.youtube.com/channel/UCckTB2YocVwWV0jmc929wCw">https://www.youtube.com/jaredt17</a></li>
+						</ul>
+						<ul class="copyright">
+							<li>&copy; Jared Teller All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+						</ul>
+					</div>
+				</section>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+			<script>hljs.initHighlightingOnLoad();</script>
+
+	</body>
+</html>
